@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculator</title>
+    <link rel="stylesheet" href="style3.css">
+</head>
+<body>
+    <div class="container">
+        <h1>BMI Calculator</h1>
+        <p class="subtitle">Calculate your Body Mass Index</p>
+
+        <form id="bmiForm">
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" placeholder="Enter your age" min="1" max="120">
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender">
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Height</label>
+                <div class="height-inputs">
+                    <div class="height-field">
+                        <input type="number" id="feet" placeholder="Feet" min="0" max="8">
+                        <span>ft</span>
+                    </div>
+                    <div class="height-field">
+                        <input type="number" id="inches" placeholder="Inches" min="0" max="11">
+                        <span>in</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="weight">Weight</label>
+                <div class="weight-input">
+                    <input type="number" id="weight" placeholder="Enter weight" min="1" step="0.1">
+                    <span>kg</span>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="calculateBtn" class="btn btn-primary">Calculate</button>
+                <button type="button" id="clearBtn" class="btn btn-secondary">Clear</button>
+            </div>
+        </form>
+
+        <div id="result" class="result-section hidden">
+            <div class="bmi-display">
+                <span class="bmi-label">Your BMI</span>
+                <span id="bmiValue" class="bmi-value">--</span>
+            </div>
+            <div id="category" class="category"></div>
+            <div id="tips" class="tips"></div>
+        </div>
+
+        <div class="bmi-chart">
+            <h3>BMI Categories</h3>
+            <div class="chart-row underweight">
+                <span class="range">&lt; 18.5</span>
+                <span class="label">Underweight</span>
+            </div>
+            <div class="chart-row normal">
+                <span class="range">18.5 - 24.9</span>
+                <span class="label">Normal</span>
+            </div>
+            <div class="chart-row overweight">
+                <span class="range">25 - 29.9</span>
+                <span class="label">Overweight</span>
+            </div>
+            <div class="chart-row obese">
+                <span class="range">≥ 30</span>
+                <span class="label">Obese</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="bmi2.js"></script>
+</body>
+</html>
