@@ -16,21 +16,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const inches = parseFloat(document.getElementById('inches').value) || 0;
         const weight = parseFloat(document.getElementById('weight').value);
 
-        // Validation
+        
         if (!age || !gender || (feet === 0 && inches === 0) || !weight) {
             alert('Please fill in all required fields.');
             return;
         }
 
-        // Convert height to meters
+        
         const totalInches = (feet * 12) + inches;
         const heightMeters = totalInches * 0.0254;
 
-        // Calculate BMI
         const bmi = weight / (heightMeters * heightMeters);
         const bmiRounded = bmi.toFixed(1);
 
-        // Determine category and tips
         let category, tips, categoryClass;
 
         if (bmi < 18.5) {
@@ -51,14 +49,13 @@ document.addEventListener('DOMContentLoaded', function() {
             tips = 'Please consult a healthcare professional for personalized guidance on achieving a healthier weight.';
         }
 
-        // Display results
+        
         bmiValueEl.textContent = bmiRounded;
         categoryEl.textContent = category;
         categoryEl.className = 'category ' + categoryClass;
         tipsEl.textContent = tips;
         resultSection.classList.remove('hidden');
 
-        // Smooth scroll to results
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
