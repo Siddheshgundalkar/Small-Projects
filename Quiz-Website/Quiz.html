@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUIZ VAULT - Ultimate Quiz Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0f2e 0%, #1a1a4d 25%, #2d1b3d 50%, #1a0f2e 75%, #0f0f2e 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-y: auto;
+            color: #fff;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 0%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-card {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            padding: 60px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            animation: slideInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .quiz-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .quiz-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+        }
+
+        .progress-container {
+            margin-bottom: 40px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .progress-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+        }
+
+        .progress-score {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 50%, #3b82f6 100%);
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .question-container {
+            margin-bottom: 45px;
+            animation: fadeInScale 0.5s ease;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .question-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(139, 92, 246, 0.9);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.4;
+            margin-bottom: 30px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .option {
+            position: relative;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: rgba(139, 92, 246, 0.8);
+            background: rgba(139, 92, 246, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .option:hover:not(.disabled)::before {
+            left: 0;
+        }
+
+        .option.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.3),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .option.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.25);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.2);
+        }
+
+        .option.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.25);
+            box-shadow: 0 15px 40px rgba(239, 68, 68, 0.2);
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .option.selected .option-icon {
+            border-color: #8b5cf6;
+            background: #8b5cf6;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+
+        .option.correct .option-icon {
+            border-color: #10b981;
+            background: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        }
+
+        .option.correct .option-icon::after {
+            content: '✓';
+            color: white;
+        }
+
+        .option.incorrect .option-icon {
+            border-color: #ef4444;
+            background: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+
+        .option.incorrect .option-icon::after {
+            content: '✕';
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-prev {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex: 0 1 120px;
+        }
+
+        .btn-prev:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateX(-3px);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            flex: 1;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-next:active {
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-container {
+            text-align: center;
+            animation: zoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .score-ring {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .score-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.3));
+            border: 3px solid rgba(139, 92, 246, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 800;
+            background-clip: padding-box;
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.4),
+                        inset 0 0 50px rgba(139, 92, 246, 0.1);
+            animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .results-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 30px 0 15px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .results-message {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+            font-weight: 700;
+        }
+
+        .btn-restart {
+            width: 100%;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            padding: 16px;
+            font-size: 1.1rem;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-card {
+                padding: 30px 20px;
+            }
+
+            .quiz-title {
+                font-size: 2rem;
+            }
+
+            .question-text {
+                font-size: 1.3rem;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn-prev {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-card">
+            <!-- Quiz Body -->
+            <div id="quizBody">
+                <div class="quiz-header">
+                    <h1 class="quiz-title">QUIZ VAULT</h1>
+                    <p class="quiz-subtitle">Test Your Knowledge To The Max</p>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <span class="progress-text" id="progressText">Question 1 of 10</span>
+                        <span class="progress-score" id="scoreText">Score: 0/10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="question-container">
+                    <div class="question-label" id="questionNumber">Question 1</div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="options-grid" id="optionsContainer"></div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn-prev" id="prevBtn" onclick="previousQuestion()" style="display: none;">← Previous</button>
+                    <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next Question →</button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="results-container hidden" id="resultsContainer">
+                <div class="score-ring">
+                    <div class="score-circle" id="finalScore">0</div>
+                </div>
+                <h2 class="results-title" id="resultsTitle">Phenomenal!</h2>
+                <p class="results-message" id="resultsMessage"></p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="correctAnswers">0</div>
+                        <div class="stat-label">Correct Answers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalQuestions">10</div>
+                        <div class="stat-label">Total Questions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">Accuracy Rate</div>
+                    </div>
+                </div>
+
+                <button class="btn-restart" onclick="restartQuiz()">🚀 Take Quiz Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "In a singly linked list without tail pointer, inserting at the end takes ?",
+                options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"],
+                correct: 1
+            },
+            {
+                question: "Reversing a singly linked list iteratively takes:",
+                options: ["O(n), O(1) space", "O(n²), O(1) space", "O(log n), O(n) space", "O(n), O(n) space"],
+                correct: 0
+            },
+            {
+                question: "Worst-case search complexity of BST is ?",
+                options: ["O(1)", "O(n)", " O(log n)", "O(n log n)"],
+                correct: 1
+            },
+            {
+                question: "Inorder traversal of BST gives:",
+                options: ["Reverse Sorted Order", "Sorted Order", "Level Order", "None of the Above"],
+                correct: 1
+            },
+            {
+                question: "Which data structure is used for performing DFS ?",
+                options: ["Array", "Stack", "Queue", "Graph"],
+                correct: 1
+            },
+            {
+                question: "Which data structure is used for performing BFS ?",
+                options: ["Trees", "Stack", "Queue", "Graph"],
+                correct: 2
+            },
+            {
+                question: "Deleting the first node of a singly linked list takes:",
+                options: ["O(1)", "O(n)", " O(log n)", "O(n log n)"],
+                correct: 0
+            },
+            {
+                question: "Trie is most efficient for ?",
+                options: ["Range Sum Queries", "Prefix Matching", "Graph Traversal", "Sorting Large Arrays"],
+                correct: 1
+            },
+            {
+                question: "For a segment tree built on n elements, worst-case complexity of range query is:?",
+                options: ["O(1)", "O(n)", " O(log n)", "O(n log n)"],
+                correct: 2
+            },
+            {
+                question: "Minimum possible height of BST with n nodes is:",
+                options:  ["O(1)", "O(log n)", " O(n)", "O(n log n)"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let answered = false;
+
+        function loadQuestion() {
+            const question = quizData[currentQuestion];
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1}`;
+            document.getElementById('questionText').textContent = question.question;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `<span class="option-icon"></span><span>${option}</span>`;
+
+                if (userAnswers[currentQuestion] !== null && userAnswers[currentQuestion] === index) {
+                    optionDiv.classList.add('selected');
+                }
+
+                optionDiv.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentQuestion === quizData.length - 1 ? 'Finish Quiz →' : 'Next Question →';
+            document.getElementById('nextBtn').disabled = userAnswers[currentQuestion] === null;
+
+            answered = false;
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+
+            answered = true;
+            userAnswers[currentQuestion] = index;
+
+            const options = document.querySelectorAll('.option');
+            const correctAnswer = quizData[currentQuestion].correct;
+
+            options.forEach((option, i) => {
+                option.classList.add('disabled');
+                if (i === correctAnswer) {
+                    option.classList.add('correct');
+                }
+                if (i === index && i !== correctAnswer) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            document.getElementById('nextBtn').disabled = false;
+
+            const correctCount = userAnswers.filter((ans, idx) => ans !== null && ans === quizData[idx].correct).length;
+            document.getElementById('scoreText').textContent = `Score: ${correctCount}/${quizData.length}`;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizBody').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+
+            const correctCount = userAnswers.filter((ans, idx) => ans === quizData[idx].correct).length;
+            const accuracy = Math.round((correctCount / quizData.length) * 100);
+
+            document.getElementById('finalScore').textContent = correctCount;
+            document.getElementById('correctAnswers').textContent = correctCount;
+            document.getElementById('totalQuestions').textContent = quizData.length;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+
+            let title = '';
+            let message = '';
+
+            if (accuracy === 100) {
+                title = 'PERFECT SCORE! 🏆';
+                message = 'You are an absolute genius! You got every single question right. Incredible!';
+            } else if (accuracy >= 90) {
+                title = 'OUTSTANDING! 🌟';
+                message = 'Nearly perfect! You demonstrated exceptional knowledge and mastery!';
+            } else if (accuracy >= 80) {
+                title = 'EXCELLENT! 🚀';
+                message = 'You absolutely crushed it! Fantastic performance!';
+            } else if (accuracy >= 70) {
+                title = 'GREAT JOB! 👍';
+                message = 'You did really well! Keep it up!';
+            } else if (accuracy >= 50) {
+                title = 'GOOD START! 💪';
+                message = 'Nice effort! Review the material and try again!';
+            } else {
+                title = 'KEEP LEARNING! 📚';
+                message = 'Don\'t worry! Every expert started as a beginner. Keep practicing!';
+            }
+
+            document.getElementById('resultsTitle').textContent = title;
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            answered = false;
+
+            document.getElementById('quizBody').classList.remove('hidden');
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('scoreText').textContent = 'Score: 0/10';
+
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
